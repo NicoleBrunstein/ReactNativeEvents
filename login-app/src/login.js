@@ -22,7 +22,7 @@ export default function LoginScreen() {
 
       if (response.ok) {
         Alert.alert('Login exitoso');
-        navigation.navigate('Home');
+        navigation.navigate('eventos');
       } else {
         Alert.alert('Error en el login', result.message || 'Credenciales incorrectas');
       }
