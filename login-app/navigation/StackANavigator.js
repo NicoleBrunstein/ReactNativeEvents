@@ -8,7 +8,7 @@ const StackA = createNativeStackNavigator();
 export default function StackANavigator() {
   return (
     <StackA.Navigator>
-      <StackA.Screen name="Login" component={LoginScreen} />
+      <StackA.Screen name="login" component={LoginScreen} />
       {/* Añade otras pantallas si es necesario */}
     </StackA.Navigator>
   );

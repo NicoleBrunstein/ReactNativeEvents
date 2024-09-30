@@ -2,14 +2,14 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Importa tu componente ScreenB1
-import ScreenB1 from '../scr/ScreenB1'; // Ajusta la ruta según tu estructura de carpetas
-
+import registrarse from '../src/registrarse.js'; // Ajusta la ruta según tu estructura de carpetas
+import login from '../src/login.js';
 const StackB = createNativeStackNavigator();
 
 export default function StackBNavigator() {
   return (
     <StackB.Navigator>
-      <StackB.Screen name="ScreenB1" component={ScreenB1} />
+      <StackB.Screen name="registrarse" component={registrarse} />
       {/* ... otras pantallas */}
     </StackB.Navigator>
   );
