@@ -1,8 +1,15 @@
-function StackDNavigator() {
-    return (
-      <StackD.Navigator>
-        <StackD.Screen name="ScreenD1" component={ScreenD1} />
-        <StackD.Screen name="ScreenD2" component={ScreenD2} />
-      </StackD.Navigator>
-    );
-  }
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import CategoriasScreen from '../src/categorias'; // Ruta y nombre del componente actualizados
+
+const StackD = createNativeStackNavigator();
+
+export default function StackDNavigator(categoriaNombre) {
+  return (
+    <StackD.Navigator>
+      <StackD.Screen name="categorias" component={CategoriasScreen} />
+      {/* Añade otras pantallas si es necesario */}
+    </StackD.Navigator>
+  );
+}

@@ -6,8 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import {styles} from './../styles.js';
 
 export default function LoginScreen() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('pablo.ulman@ort.edu.ar');
+  const [password, setPassword] = useState('pabulm101');
   const navigation = useNavigation();
 
   const handleLogin = async () => {
@@ -22,7 +22,7 @@ export default function LoginScreen() {
 
       if (response.ok) {
         Alert.alert('Login exitoso');
-        navigation.navigate('eventos');
+        navigation.navigate('categorias');
       } else {
         Alert.alert('Error en el login', result.message || 'Credenciales incorrectas');
       }
