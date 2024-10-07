@@ -31,7 +31,7 @@ export default function CategoriasScreen() {
   }, []);
 
   const handleVerEventos = (categoriaNombre) => {
-    navigation.navigate('Eventos', { categoriaNombre }); // Navega a la pantalla de eventos
+    navigation.navigate('eventos', { categoriaNombre }); // Navega a la pantalla de eventos
   };
 
   if (loading) {

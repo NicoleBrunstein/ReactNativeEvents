@@ -3,15 +3,25 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, Alert, Button } from 'react-native';
 
-export default function EventosScreen() {
+export default function EventosScreen({ route }) {
+  const { categoriaNombre } = route.params || {}; // Extraemos el nombre de categoría de los parámetros de la ruta
   const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const handleEventos = async () => {
     setLoading(true); // Inicia el loading
     try {
-      const response = await fetch('https://set-previously-redfish.ngrok-free.app/api/event');
-      const data = await response.json();
+      let response;
+      let data;
+
+      // Determina la URL según la categoría
+      if (categoriaNombre) {
+        response = await fetch(`https://set-previously-redfish.ngrok-free.app/api/event/?category=${categoriaNombre}`);
+      } else {
+        response = await fetch('https://set-previously-redfish.ngrok-free.app/api/event');
+      }
+
+      data = await response.json();
 
       if (response.ok) {
         setEventos(data); // Asigna la lista de eventos
@@ -46,10 +56,11 @@ export default function EventosScreen() {
         keyExtractor={(item) => item.id.toString()} // Asegúrate de que el ID sea un string
         renderItem={({ item }) => (
           <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
+            <Text style={{ fontSize: 18 }}>{item.name}</Text>
+            <Text>{item.description}</Text>
           </View>
         )}
       />
     </View>
   );
 }
-
