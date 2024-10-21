@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, Alert, Button } from 'react-native';
-
+import { useNavigation } from '@react-navigation/native';
 export default function EventosScreen({ route }) {
   const { categoriaNombre } = route.params || {}; // Extraemos el nombre de categoría de los parámetros de la ruta
   const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
   const handleEventos = async () => {
     setLoading(true); // Inicia el loading
@@ -40,6 +41,10 @@ export default function EventosScreen({ route }) {
     handleEventos(); // Llama a handleEventos al montar el componente
   }, []);
 
+  const handleEventoDetalle = (id) => {
+    navigation.navigate('eventoDetalle', {id}); // Navega a la pantalla de eventos
+  };
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -58,6 +63,7 @@ export default function EventosScreen({ route }) {
           <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
             <Text style={{ fontSize: 18 }}>{item.name}</Text>
             <Text>{item.description}</Text>
+            <Button title="Ver Detalle" onPress={() => handleEventoDetalle(item.id)} />
           </View>
         )}
       />
