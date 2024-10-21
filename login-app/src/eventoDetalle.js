@@ -62,6 +62,9 @@ export default function EventoDetalleScreen({ route }) {
       <Button title="Recargar Evento" onPress={handleEventoDetalle} />
       <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
         <Text style={{ fontSize: 18 }}>{eventoDetalle.name}</Text>
+        <Text>{eventoDetalle.description}</Text>
+        <Text style={{ fontSize: 18 }}>Fecha de inicio: {eventoDetalle.start_date}</Text>
+        <Text style={{ fontSize: 18 }}>Duracion en minutos: {eventoDetalle.duration_in_minutes}</Text>
         <Text>{eventoDetalle.full_address}</Text>
         <Text>Capacidad máxima: {eventoDetalle.max_capacity}</Text>
       </View>
