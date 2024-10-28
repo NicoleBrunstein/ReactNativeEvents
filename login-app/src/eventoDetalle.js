@@ -1,45 +1,73 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Alert, Button } from 'react-native';
+import { View, Text, ActivityIndicator, Alert, Button, FlatList } from 'react-native';
 
 export default function EventoDetalleScreen({ route }) {
-  const { id } = route.params || {}; // Extraemos el ID de los parámetros de la ruta
-  const [eventoDetalle, setEventoDetalle] = useState(null); // Cambiado a null ya que la API devuelve un solo objeto
+  const { id } = route.params || {};
+  const [eventoDetalle, setEventoDetalle] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [canSubscribe, setCanSubscribe] = useState(false);
+  const [subscribers, setSubscribers] = useState([]); // Nuevo estado para almacenar los suscriptores
 
   const handleEventoDetalle = async () => {
-    setLoading(true); // Inicia el loading
+    setLoading(true);
     try {
       let response;
-      let url = '';
-      // Determina la URL según el ID
-      if (id) {
-         url = `https://set-previously-redfish.ngrok-free.app/api/event/${id}`;
-      } else {
-         url = `https://set-previously-redfish.ngrok-free.app/api/event/`;
-      }
-      console.log('url', url);
+      let url = id
+        ? `https://set-previously-redfish.ngrok-free.app/api/event/${id}`
+        : `https://set-previously-redfish.ngrok-free.app/api/event/`;
+
       response = await fetch(url);
-      // Verifica si la respuesta fue exitosa
       if (!response.ok) {
-        const errorMessage = await response.text(); // Captura el texto de la respuesta en caso de error
+        const errorMessage = await response.text();
         Alert.alert('Error al mostrar evento', errorMessage || 'No se puede mostrar el evento');
-        return; // Sale de la función si hay un error
+        return;
       }
 
-      // Intenta convertir la respuesta a JSON
       const data = await response.json();
-      setEventoDetalle(data); // Asigna el evento obtenido
+      setEventoDetalle(data);
+
+      const currentDate = new Date();
+      const eventStartDate = new Date(data.start_date);
+      setCanSubscribe(currentDate < eventStartDate);
+
+      // Si el evento ha pasado, obtiene los suscriptores
+      if (currentDate >= eventStartDate) {
+        const subscribersResponse = await fetch(`https://set-previously-redfish.ngrok-free.app/api/event/${id}/subscribers`);
+        if (!subscribersResponse.ok) {
+          const errorMessage = await subscribersResponse.text();
+          Alert.alert('Error al cargar suscriptores', errorMessage || 'No se pudo cargar la lista de suscriptores');
+          return;
+        }
+        const subscribersData = await subscribersResponse.json();
+        setSubscribers(subscribersData);
+      }
     } catch (error) {
       console.error('Error en la solicitud:', error);
       Alert.alert('Error', 'Hubo un problema al cargar los eventos');
     } finally {
-      setLoading(false); // Finaliza el loading
+      setLoading(false);
     }
   };
 
+  const handleSubscriptionToggle = async () => {
+    if (!canSubscribe) {
+      Alert.alert('Error', 'No puedes suscribirte a un evento cuya fecha ya ha pasado.');
+      return;
+    }
+
+    if (isSubscribed) {
+      Alert.alert('Desuscripción', 'Te has desuscrito del evento.');
+    } else {
+      // Aquí iría la lógica para suscribirse, como antes
+      Alert.alert('Suscripción', 'Te has suscrito al evento.');
+    }
+    setIsSubscribed(!isSubscribed);
+  };
+
   useEffect(() => {
-    handleEventoDetalle(); // Llama a handleEventoDetalle al montar el componente
-  }, [id]); // Cambiado a [id] para que se ejecute cuando cambie el ID
+    handleEventoDetalle();
+  }, [id]);
 
   if (loading) {
     return (
@@ -63,11 +91,28 @@ export default function EventoDetalleScreen({ route }) {
       <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
         <Text style={{ fontSize: 18 }}>{eventoDetalle.name}</Text>
         <Text>{eventoDetalle.description}</Text>
-        <Text style={{ fontSize: 18 }}>Fecha de inicio: {eventoDetalle.start_date}</Text>
-        <Text style={{ fontSize: 18 }}>Duracion en minutos: {eventoDetalle.duration_in_minutes}</Text>
+        <Text style={{ fontSize: 16 }}>Fecha de inicio: {eventoDetalle.start_date}</Text>
+        <Text>Duración en minutos: {eventoDetalle.duration_in_minutes}</Text>
         <Text>{eventoDetalle.full_address}</Text>
-        <Text>Capacidad máxima: {eventoDetalle.max_capacity}</Text>
+        <Text>Capacidad máxima: {eventoDetalle.max_assistance}</Text>
       </View>
+      {canSubscribe && (
+        <Button title={isSubscribed ? "Desuscribirse" : "Suscribirse"} onPress={handleSubscriptionToggle} />
+      )}
+      
+      {/* Mostrar suscriptores si el evento ya ha pasado */}
+      {subscribers.length > 0 && currentDate >= new Date(eventoDetalle.start_date) && (
+        <View style={{ marginTop: 16 }}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Suscriptores:</Text>
+          <FlatList
+            data={subscribers}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <Text>{item.name}</Text> // Ajusta según la estructura de tu objeto de suscriptor
+            )}
+          />
+        </View>
+      )}
     </View>
   );
 }
