@@ -33,14 +33,21 @@ export default function EventoDetalleScreen({ route }) {
 
       // Si el evento ha pasado, obtiene los suscriptores
       if (currentDate >= eventStartDate) {
-        const subscribersResponse = await fetch(`https://set-previously-redfish.ngrok-free.app/api/event/${id}/subscribers`);
+        const subscribersResponse = await fetch(`https://set-previously-redfish.ngrok-free.app/api/event/${id}/enrollment`);
         if (!subscribersResponse.ok) {
           const errorMessage = await subscribersResponse.text();
           Alert.alert('Error al cargar suscriptores', errorMessage || 'No se pudo cargar la lista de suscriptores');
           return;
         }
+
         const subscribersData = await subscribersResponse.json();
-        setSubscribers(subscribersData);
+        
+        // Comprobar si hay suscriptores, si no, no hacer nada
+        if (subscribersData.response && subscribersData.response[0] && subscribersData.response[0].response) {
+          setSubscribers(subscribersData.response[0].response);
+        } else {
+          setSubscribers([]); // Si no hay suscriptores, aseguramos que el array esté vacío
+        }
       }
     } catch (error) {
       console.error('Error en la solicitud:', error);
@@ -85,6 +92,8 @@ export default function EventoDetalleScreen({ route }) {
     );
   }
 
+  const currentDate = new Date();
+
   return (
     <View style={{ flex: 1, padding: 16 }}>
       <Button title="Recargar Evento" onPress={handleEventoDetalle} />
@@ -106,11 +115,17 @@ export default function EventoDetalleScreen({ route }) {
           <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Suscriptores:</Text>
           <FlatList
             data={subscribers}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.username} // Usamos 'username' como key única
             renderItem={({ item }) => (
-              <Text>{item.name}</Text> // Ajusta según la estructura de tu objeto de suscriptor
+              <Text>{item.first_name} {item.last_name}</Text> // Mostrar el nombre y apellido del suscriptor
             )}
           />
+        </View>
+      )}
+      {/* Si no hay suscriptores, mostrar un mensaje */}
+      {subscribers.length === 0 && currentDate >= new Date(eventoDetalle.start_date) && (
+        <View style={{ marginTop: 16 }}>
+          <Text>No hay suscriptores para este evento.</Text>
         </View>
       )}
     </View>
